@@ -395,7 +395,6 @@ export default {
       ) {
         callback(new Error("身份证上的出生日期非法！"));
       }
-
       // 身份证号码校验
       var sum = 0,
         weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
@@ -409,7 +408,6 @@ export default {
       }
       callback();
     };
-
     return {
       personsData: [], // 用来存储从后端get到的person数据
       optionsProvince: [], // 省份选择器
