@@ -7,6 +7,7 @@
           v-model="formSearch.number"
           placeholder="身份证号码"
           @change="showSearch"
+          onkeyup="this.value=this.value.replace(/[^\X0-9]/g, '')"
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -140,10 +141,11 @@
     >
     <!-- 添加或编辑表单 -->
     <div class="addOrUpdateForm" v-show="isShowForm">
-      <el-form ref="form" :model="form">
+      <el-form ref="form" :model="form" :rules="rules">
         <el-form-item
           label="身份证号码"
           style="width: 200px; position: absolute; left: 25px; top: 20px"
+          prop="number"
         >
           <el-input
             v-model="form.number"
@@ -324,6 +326,90 @@ import cloneDeep from "lodash/cloneDeep";
 export default {
   name: "CeShi",
   data() {
+    // ==========================================身份证校验===============================================
+    // (1) :rules="rules" 动态绑定校验规则属性
+    // (2) prop="xxx" 绑定需要校验的属性
+    // (3) data() {...} 在data中定义变量，接收校验结果
+    // (4) var yyy = (rule, value, callback) => {...} 根据需求，编写校验规则
+    // (5) return {..., rules: { xxx: [{ validator: yyy, trigger: "blur" }],}, ...}  在return中调用rules
+    var checkNumber = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("请输入身份证号码！"));
+      }
+      if (!/(^\d{15}$)|(^\d{17}(\d|X|x)$)/.test(value)) {
+        callback(new Error("身份证长度或格式错误！"));
+      }
+      //身份证城市
+      var aCity = {
+        11: "北京",
+        12: "天津",
+        13: "河北",
+        14: "山西",
+        15: "内蒙古",
+        21: "辽宁",
+        22: "吉林",
+        23: "黑龙江",
+        31: "上海",
+        32: "江苏",
+        33: "浙江",
+        34: "安徽",
+        35: "福建",
+        36: "江西",
+        37: "山东",
+        41: "河南",
+        42: "湖北",
+        43: "湖南",
+        44: "广东",
+        45: "广西",
+        46: "海南",
+        50: "重庆",
+        51: "四川",
+        52: "贵州",
+        53: "云南",
+        54: "西藏",
+        61: "陕西",
+        62: "甘肃",
+        63: "青海",
+        64: "宁夏",
+        65: "新疆",
+        71: "台湾",
+        81: "香港",
+        82: "澳门",
+        91: "国外",
+      };
+      if (!aCity[parseInt(value.substr(0, 2))]) {
+        callback(new Error("身份证地区非法！"));
+      }
+      // 出生日期验证
+      var sBirthday = (
+          value.substr(6, 4) +
+          "-" +
+          Number(value.substr(10, 2)) +
+          "-" +
+          Number(value.substr(12, 2))
+        ).replace(/-/g, "/"),
+        d = new Date(sBirthday);
+      if (
+        sBirthday !=
+        d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate()
+      ) {
+        callback(new Error("身份证上的出生日期非法！"));
+      }
+
+      // 身份证号码校验
+      var sum = 0,
+        weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
+        codes = "10X98765432";
+      for (var i = 0; i < value.length - 1; i++) {
+        sum += value[i] * weights[i];
+      }
+      var last = codes[sum % 11]; //计算出来的最后一位身份证号码
+      if (value[value.length - 1] != last) {
+        callback(new Error("输入的身份证号非法！"));
+      }
+      callback();
+    };
+
     return {
       personsData: [], // 用来存储从后端get到的person数据
       optionsProvince: [], // 省份选择器
@@ -358,6 +444,10 @@ export default {
       currentPage: 1, // 当前页码
       total: "", // 数据总条数
       dictPagination: {}, // 用来存储pageSize currentPage，然后post给后端
+
+      rules: {
+        number: [{ validator: checkNumber, trigger: "blur" }],
+      },
     };
   },
   mounted() {
