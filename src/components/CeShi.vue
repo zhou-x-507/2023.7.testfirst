@@ -1,7 +1,7 @@
 <template>
   <div class="father">
     <!-- 搜索表单 -->
-    <el-form ref="formSearch" :model="formSearch">
+    <el-form ref="formSearch" :model="formSearch" :disabled="isShowForm">
       <el-form-item style="width: 200px; position: absolute; left: 0; top: 0">
         <el-input
           v-model="formSearch.number"
@@ -136,22 +136,19 @@
       style="position: absolute; left: 0px; top: 50px"
       v-if="isShowAdd"
       icon="el-icon-plus"
-      :disabled="disabledAddUpdateDelete"
+      :disabled="isShowForm"
       >添加</el-button
     >
-    <!-- 添加或编辑表单 -->
+    <!-- 添加或修改表单 -->
     <div class="addOrUpdateForm" v-show="isShowForm">
+      <!-- <el-form ref="form" :model="form"> -->
       <el-form ref="form" :model="form" :rules="rules">
         <el-form-item
           label="身份证号码"
           style="width: 200px; position: absolute; left: 25px; top: 20px"
           prop="number"
         >
-          <el-input
-            v-model="form.number"
-            placeholder="身份证号码"
-            onkeyup="this.value=this.value.replace(/[^\X0-9]/g, '')"
-          ></el-input>
+          <el-input v-model="form.number" placeholder="身份证号码"></el-input>
           <!-- onkeyup="this.value=this.value.replace(/[^\X0-9]/g, '')" 正则表达式限制输入 -->
         </el-form-item>
         <el-form-item
@@ -290,14 +287,14 @@
             size="small"
             @click="updatePerson(row, $index)"
             icon="el-icon-edit"
-            :disabled="disabledAddUpdateDelete"
+            :disabled="isShowForm"
           ></el-button>
           <el-button
             type="danger"
             size="small"
             @click="deletePsrson(row, $index)"
             icon="el-icon-delete"
-            :disabled="disabledAddUpdateDelete"
+            :disabled="isShowForm"
           ></el-button>
         </template>
       </el-table-column>
@@ -428,7 +425,7 @@ export default {
       isShowAdd: true, // 用来控制（添加按钮/返回按钮）的显示
       disabledSearch: true, // 用来控制搜索按钮是否禁用
 
-      disabledAddUpdateDelete: false, // 当form表单展示时，添加、修改、删除按钮禁用
+      // disabledAddUpdateDelete: false, // 当form表单展示时，添加、修改、删除按钮禁用
       disabledPagination: false, // 除了主界面，其他情况下都禁用分页器
 
       // @size-change="handleSizeChange" // 设置每页显示条数，pageSize改变时触发
@@ -440,7 +437,7 @@ export default {
       // :total="400" // 数据总条数
       pageSize: 5, // 每页显示条数
       currentPage: 1, // 当前页码
-      total: "", // 数据总条数
+      total: 1, // 数据总条数
       dictPagination: {}, // 用来存储pageSize currentPage，然后post给后端
 
       rules: {
@@ -471,33 +468,37 @@ export default {
 
       // 获取provinces，get
       axios
-        .get("api/provinces/", { withCredentials: true })
+        .get("api/get_provinces/", { withCredentials: true })
         .then((response) => {
           this.optionsProvince = response.data;
-          console.log("从后端拿到的全部province信息", this.optionsProvince);
-          console.log(
-            "optionsProvince的items对应的列表",
-            this.optionsProvince.items
-          );
-          console.log(
-            "该列表的一个字段",
-            this.optionsProvince.items[0].province
-          );
+          // console.log(
+          //   "从后端拿到的全部province信息",
+          //   this.optionsProvince,
+          //   typeof this.optionsProvince
+          // );
+          // console.log(
+          //   "optionsProvince的items对应的列表",
+          //   this.optionsProvince.items
+          // );
+          // console.log(
+          //   "该列表的一个字段",
+          //   this.optionsProvince.items[0].province
+          // );
         })
         .catch((error) => {
           console.error("报错", error);
         });
       // 获取ethnics，get
       axios
-        .get("api/ethnics/", { withCredentials: true })
+        .get("api/get_ethnics/", { withCredentials: true })
         .then((response) => {
           this.optionsEthnic = response.data;
-          console.log("从后端拿到的全部ethnic信息", this.optionsEthnic);
-          console.log(
-            "optionsEthnic的items对应的列表",
-            this.optionsEthnic.items
-          );
-          console.log("该列表的一个字段", this.optionsEthnic.items[0].ethnic);
+          // console.log("从后端拿到的全部ethnic信息", this.optionsEthnic);
+          // console.log(
+          //   "optionsEthnic的items对应的列表",
+          //   this.optionsEthnic.items
+          // );
+          // console.log("该列表的一个字段", this.optionsEthnic.items[0].ethnic);
         })
         .catch((error) => {
           console.error("报错", error);
@@ -525,9 +526,10 @@ export default {
     addPerson() {
       this.isShowForm = true;
       this.isShowButton = true;
+      this.form = {};
       this.formSearch = {}; // 清空搜索表单
       this.disabledSearch = true; // 禁用搜索
-      this.disabledAddUpdateDelete = true; // 禁用添加、修改、删除
+      // this.disabledAddUpdateDelete = true; // 禁用添加、修改、删除
       this.disabledPagination = true; // 禁用分页器
     },
     // 添加person信息，post
@@ -549,7 +551,7 @@ export default {
       this.hiddenForm();
       this.getJsonData(); // 更新total
       this.personsDataPagination(); // 更新personsData
-      this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
+      // this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
       this.disabledPagination = false; // 启用分页器
     },
     // 删除person信息，post
@@ -567,8 +569,9 @@ export default {
         .catch((error) => {
           console.error("报错", error);
         });
-      this.getJsonData();
+      this.getJsonData(); // 更新total
       this.personsDataPagination();
+      this.isShowAdd = true; // 显示添加按钮
     },
     // 修改person按钮
     updatePerson(row) {
@@ -579,7 +582,7 @@ export default {
       console.log("当前person的表单信息", this.form);
       this.formSearch = {}; // 清空搜索表单
       this.disabledSearch = true; // 禁用搜索
-      this.disabledAddUpdateDelete = true; // 禁用添加、修改、删除
+      // this.disabledAddUpdateDelete = true; // 禁用添加、修改、删除
       this.disabledPagination = true; // 禁用分页器
     },
     // 修改person信息，post
@@ -602,7 +605,7 @@ export default {
       this.getJsonData();
       this.personsDataPagination();
       this.isShowAdd = true; // 显示添加按钮
-      this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
+      // this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
       this.disabledPagination = false; // 启用分页器
     },
     // 取消按钮
@@ -610,7 +613,7 @@ export default {
       this.isShowForm = false;
       this.isShowButton = false;
       this.form = {}; // 清空form表单
-      this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
+      // this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
       this.disabledPagination = false; // 启用分页器
     },
     // 提交搜索表单，post
@@ -660,7 +663,7 @@ export default {
       console.log("将该结果存入字典中", this.dictSearch);
       // 获取cities，post（先获取省份，再post给后端，最后get回该省的所有城市）
       axios
-        .post("api/cities/", this.dictSearch, { withCredentials: true })
+        .post("api/get_cities/", this.dictSearch, { withCredentials: true })
         .then((response) => {
           this.optionsCity = response.data;
           console.log("从后端拿到的该省份的全部city", this.optionsCity);
@@ -673,12 +676,12 @@ export default {
     },
     // 添加表单，省份选择器的选择结果 决定 城市选择器的数据
     addProvinceNow() {
-      console.log("该省份选择器显示", this.form.province);
+      console.log("该省份选择器显示", this.form.province); // 输出省份
       this.dict = { province: this.form.province };
       console.log("将该结果存入字典中", this.dict);
       // 获取cities，post（先获取省份，再post给后端，最后get回该省的所有城市）
       axios
-        .post("api/cities/", this.dict, { withCredentials: true })
+        .post("api/get_cities/", this.dict, { withCredentials: true })
         .then((response) => {
           this.optionsCity = response.data;
           console.log("从后端拿到的该省份的全部city", this.optionsCity);
