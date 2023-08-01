@@ -1,12 +1,12 @@
 <template>
   <div class="father">
-    <!-- 搜索表单 -->
+    <!-- 搜索栏，搜索表单formSearch -->
     <el-form ref="formSearch" :model="formSearch" :disabled="isShowForm">
       <el-form-item style="width: 200px; position: absolute; left: 0; top: 0">
         <el-input
           v-model="formSearch.number"
           placeholder="身份证号码"
-          @change="showSearch"
+          @change="showSearchButton"
           onkeyup="this.value=this.value.replace(/[^\X0-9]/g, '')"
         ></el-input>
       </el-form-item>
@@ -16,7 +16,7 @@
         <el-input
           v-model="formSearch.name"
           placeholder="姓名"
-          @change="showSearch"
+          @change="showSearchButton"
         ></el-input>
       </el-form-item>
       <el-form-item
@@ -26,7 +26,7 @@
           placeholder="性别"
           filterable
           clearable
-          @change="showSearch"
+          @change="showSearchButton"
         >
           <el-option
             v-for="item in optionsSex"
@@ -39,17 +39,17 @@
       <el-form-item
         style="width: 150px; position: absolute; left: 530px; top: 0"
         ><el-select
-          v-model="formSearch.ethnic"
+          v-model="formSearch.ethnic__name"
           placeholder="民族"
           filterable
           clearable
-          @change="showSearch"
+          @change="showSearchButton"
         >
           <el-option
             v-for="item in optionsEthnic.items"
             :key="item.id"
-            :label="item.ethnic"
-            :value="item.ethnic"
+            :label="item.name"
+            :value="item.name"
           >
           </el-option> </el-select
       ></el-form-item>
@@ -63,14 +63,14 @@
             placeholder="生日"
             value-format="yyyy-MM-dd"
             style="width: 150px"
-            @change="showSearch"
+            @change="showSearchButton"
           ></el-date-picker>
         </el-col>
       </el-form-item>
       <el-form-item
         style="width: 150px; position: absolute; left: 850px; top: 0"
         ><el-select
-          v-model="formSearch.province"
+          v-model="formSearch.city__province__name"
           placeholder="省份"
           filterable
           clearable
@@ -79,26 +79,26 @@
           <el-option
             v-for="item in optionsProvince.items"
             :key="item.id"
-            :label="item.province"
-            :value="item.province"
+            :label="item.name"
+            :value="item.name"
           >
           </el-option> </el-select
       ></el-form-item>
       <el-form-item
         style="width: 150px; position: absolute; left: 1010px; top: 0"
         ><el-select
-          v-model="formSearch.city"
+          v-model="formSearch.city__name"
           placeholder="城市"
           filterable
           clearable
-          :disabled="!formSearch.province"
-          @change="showSearch"
+          :disabled="!formSearch.city__province__name"
+          @change="showSearchButton"
         >
           <el-option
             v-for="item in optionsCity.items"
             :key="item.id"
-            :label="item.city"
-            :value="item.city"
+            :label="item.name"
+            :value="item.name"
           >
           </el-option> </el-select
       ></el-form-item>
@@ -125,7 +125,7 @@
       plain
       @click="backHome"
       style="position: absolute; left: 0px; top: 50px"
-      v-if="!isShowAdd"
+      v-if="isShowBack"
       icon="el-icon-back"
       >返回</el-button
     >
@@ -134,15 +134,15 @@
       type="primary"
       @click="addPerson"
       style="position: absolute; left: 0px; top: 50px"
-      v-if="isShowAdd"
+      v-if="!isShowBack"
       icon="el-icon-plus"
       :disabled="isShowForm"
       >添加</el-button
     >
-    <!-- 添加或修改表单 -->
+    <!-- 添加/修改表单form -->
     <div class="addOrUpdateForm" v-show="isShowForm">
-      <!-- <el-form ref="form" :model="form"> -->
-      <el-form ref="form" :model="form" :rules="rules">
+      <el-form ref="form" :model="form">
+        <!-- <el-form ref="form" :model="form" :rules="rules"> -->
         <el-form-item
           label="身份证号码"
           style="width: 200px; position: absolute; left: 25px; top: 20px"
@@ -175,7 +175,7 @@
           style="width: 150px; position: absolute; left: 25px; top: 120px"
         >
           <el-select
-            v-model="form.ethnic"
+            v-model="form.ethnic__name"
             placeholder="民族"
             filterable
             clearable
@@ -183,8 +183,8 @@
             <el-option
               v-for="item in optionsEthnic.items"
               :key="item.id"
-              :label="item.ethnic"
-              :value="item.ethnic"
+              :label="item.name"
+              :value="item.name"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -207,17 +207,17 @@
           style="width: 150px; position: absolute; right: 25px; top: 120px"
         >
           <el-select
-            v-model="form.province"
+            v-model="form.city__province__name"
             placeholder="省份"
             filterable
             clearable
-            @change="addProvinceNow"
+            @change="addOrUpdateProvince"
           >
             <el-option
               v-for="item in optionsProvince.items"
               :key="item.id"
-              :label="item.province"
-              :value="item.province"
+              :label="item.name"
+              :value="item.name"
             >
             </el-option>
           </el-select>
@@ -227,17 +227,17 @@
           style="width: 150px; position: absolute; left: 25px; top: 220px"
         >
           <el-select
-            v-model="form.city"
+            v-model="form.city__name"
             placeholder="城市"
             filterable
             clearable
-            :disabled="!form.province"
+            :disabled="!form.city__province__name"
           >
             <el-option
               v-for="item in optionsCity.items"
               :key="item.id"
-              :label="item.city"
-              :value="item.city"
+              :label="item.name"
+              :value="item.name"
             >
             </el-option> </el-select
         ></el-form-item>
@@ -248,10 +248,10 @@
           <el-input v-model="form.address" placeholder="详细地址"></el-input>
         </el-form-item>
         <el-form-item style="position: absolute; right: 25px; top: 260px">
-          <el-button type="primary" @click="addSubmit" v-if="isShowButton"
+          <el-button type="primary" @click="addSubmit" v-if="!isShowSave"
             >提交</el-button
           >
-          <el-button type="primary" @click="updateSubmit" v-if="!isShowButton"
+          <el-button type="primary" @click="updateSubmit" v-if="isShowSave"
             >保存</el-button
           >
           <el-button type="button" @click="hiddenForm">取消</el-button>
@@ -269,13 +269,14 @@
       </el-table-column>
       <el-table-column prop="name" label="姓名" width="150"> </el-table-column>
       <el-table-column prop="sex" label="性别" width="65"> </el-table-column>
-      <el-table-column prop="ethnic" label="民族" width="100">
+      <el-table-column prop="ethnic__name" label="民族" width="100">
       </el-table-column>
-      <el-table-column prop="birthday" label="生日" width="110">
+      <el-table-column prop="birthday" label="生日" width="110" sortable>
       </el-table-column>
-      <el-table-column prop="province" label="省份" width="150">
+      <el-table-column prop="city__province__name" label="省份" width="150">
       </el-table-column>
-      <el-table-column prop="city" label="城市" width="150"> </el-table-column>
+      <el-table-column prop="city__name" label="城市" width="150">
+      </el-table-column>
       <el-table-column
         prop="address"
         label="详细地址（县、镇、村）"
@@ -292,14 +293,14 @@
           <el-button
             type="danger"
             size="small"
-            @click="deletePsrson(row, $index)"
+            @click="deletePerson(row, $index)"
             icon="el-icon-delete"
             :disabled="isShowForm"
           ></el-button>
         </template>
       </el-table-column>
     </el-table>
-    <!-- 分页功能 -->
+    <!-- 分页器 -->
     <div class="pagination">
       <el-pagination
         @size-change="handleSizeChange"
@@ -309,7 +310,7 @@
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
-        :disabled="disabledPagination"
+        :disabled="isShowForm"
       >
       </el-pagination>
     </div>
@@ -320,6 +321,8 @@
 import axios from "axios";
 axios.defaults.withCredentials = true;
 import cloneDeep from "lodash/cloneDeep";
+import { Message } from "element-ui";
+
 export default {
   name: "CeShi",
   data() {
@@ -329,104 +332,101 @@ export default {
     // (3) data() {...} 在data中定义变量，接收校验结果
     // (4) var yyy = (rule, value, callback) => {...} 根据需求，编写校验规则
     // (5) return {..., rules: { xxx: [{ validator: yyy, trigger: "blur" }],}, ...}  在return中调用rules
-    var checkNumber = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error("请输入身份证号码！"));
-      }
-      if (!/(^\d{15}$)|(^\d{17}(\d|X|x)$)/.test(value)) {
-        callback(new Error("身份证长度或格式错误！"));
-      }
-      //身份证城市
-      var aCity = {
-        11: "北京",
-        12: "天津",
-        13: "河北",
-        14: "山西",
-        15: "内蒙古",
-        21: "辽宁",
-        22: "吉林",
-        23: "黑龙江",
-        31: "上海",
-        32: "江苏",
-        33: "浙江",
-        34: "安徽",
-        35: "福建",
-        36: "江西",
-        37: "山东",
-        41: "河南",
-        42: "湖北",
-        43: "湖南",
-        44: "广东",
-        45: "广西",
-        46: "海南",
-        50: "重庆",
-        51: "四川",
-        52: "贵州",
-        53: "云南",
-        54: "西藏",
-        61: "陕西",
-        62: "甘肃",
-        63: "青海",
-        64: "宁夏",
-        65: "新疆",
-        71: "台湾",
-        81: "香港",
-        82: "澳门",
-        91: "国外",
-      };
-      if (!aCity[parseInt(value.substr(0, 2))]) {
-        callback(new Error("身份证地区非法！"));
-      }
-      // 出生日期验证
-      var sBirthday = (
-          value.substr(6, 4) +
-          "-" +
-          Number(value.substr(10, 2)) +
-          "-" +
-          Number(value.substr(12, 2))
-        ).replace(/-/g, "/"),
-        d = new Date(sBirthday);
-      if (
-        sBirthday !=
-        d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate()
-      ) {
-        callback(new Error("身份证上的出生日期非法！"));
-      }
-      // 身份证号码校验
-      var sum = 0,
-        weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
-        codes = "10X98765432";
-      for (var i = 0; i < value.length - 1; i++) {
-        sum += value[i] * weights[i];
-      }
-      var last = codes[sum % 11]; //计算出来的最后一位身份证号码
-      if (value[value.length - 1] != last) {
-        callback(new Error("输入的身份证号非法！"));
-      }
-      callback();
-    };
+    // var checkNumber = (rule, value, callback) => {
+    //   if (!value) {
+    //     callback(new Error("请输入身份证号码！"));
+    //   }
+    //   if (!/(^\d{15}$)|(^\d{17}(\d|X|x)$)/.test(value)) {
+    //     callback(new Error("身份证长度或格式错误！"));
+    //   }
+    //   //身份证城市
+    //   var aCity = {
+    //     11: "北京",
+    //     12: "天津",
+    //     13: "河北",
+    //     14: "山西",
+    //     15: "内蒙古",
+    //     21: "辽宁",
+    //     22: "吉林",
+    //     23: "黑龙江",
+    //     31: "上海",
+    //     32: "江苏",
+    //     33: "浙江",
+    //     34: "安徽",
+    //     35: "福建",
+    //     36: "江西",
+    //     37: "山东",
+    //     41: "河南",
+    //     42: "湖北",
+    //     43: "湖南",
+    //     44: "广东",
+    //     45: "广西",
+    //     46: "海南",
+    //     50: "重庆",
+    //     51: "四川",
+    //     52: "贵州",
+    //     53: "云南",
+    //     54: "西藏",
+    //     61: "陕西",
+    //     62: "甘肃",
+    //     63: "青海",
+    //     64: "宁夏",
+    //     65: "新疆",
+    //     71: "台湾",
+    //     81: "香港",
+    //     82: "澳门",
+    //     91: "国外",
+    //   };
+    //   if (!aCity[parseInt(value.substr(0, 2))]) {
+    //     callback(new Error("身份证地区非法！"));
+    //   }
+    //   // 出生日期验证
+    //   var sBirthday = (
+    //       value.substr(6, 4) +
+    //       "-" +
+    //       Number(value.substr(10, 2)) +
+    //       "-" +
+    //       Number(value.substr(12, 2))
+    //     ).replace(/-/g, "/"),
+    //     d = new Date(sBirthday);
+    //   if (
+    //     sBirthday !=
+    //     d.getFullYear() + "/" + (d.getMonth() + 1) + "/" + d.getDate()
+    //   ) {
+    //     callback(new Error("身份证上的出生日期非法！"));
+    //   }
+    //   // 身份证号码校验
+    //   var sum = 0,
+    //     weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
+    //     codes = "10X98765432";
+    //   for (var i = 0; i < value.length - 1; i++) {
+    //     sum += value[i] * weights[i];
+    //   }
+    //   var last = codes[sum % 11]; //计算出来的最后一位身份证号码
+    //   if (value[value.length - 1] != last) {
+    //     callback(new Error("输入的身份证号非法！"));
+    //   }
+    //   callback();
+    // };
     return {
-      personsData: [], // 用来存储从后端get到的person数据
-      optionsProvince: [], // 省份选择器
-      optionsCity: [], // 城市选择器
+      personsData: [], // 存放请求到的persons数据
+      optionsEthnic: [], // 存放请求到的ethnics数据，民族选择器
+      optionsProvince: [], // 存放请求到的provinces数据，省份选择器
+      optionsCity: [], // 存放请求到的cities数据，城市选择器
       optionsSex: [
         { value: 0, label: "女" },
         { value: 1, label: "男" },
       ], // 性别选择器
-      optionsEthnic: [], // 民族选择器
 
-      form: {}, // 用户信息表单
-      dict: {}, // 用来存储新用户信息表单，然后post给后端
-      isShowForm: false, // 用来控制form表单的显示
-      isShowButton: false, // 用来控制form表单中（提交按钮/更新按钮）的显示
+      form: {}, // 添加、修改 表单
+      dict: {}, // 存放person信息，然后post给后端
+      isShowForm: false, // 控制form表单的显示
+      isShowSave: false, // 控制form表单中（提交按钮/保存按钮）的显示
 
-      formSearch: {}, // 搜索表单
-      dictSearch: {}, // 用来存储搜索表单信息，然后post给后端
-      isShowAdd: true, // 用来控制（添加按钮/返回按钮）的显示
-      disabledSearch: true, // 用来控制搜索按钮是否禁用
-
-      // disabledAddUpdateDelete: false, // 当form表单展示时，添加、修改、删除按钮禁用
-      disabledPagination: false, // 除了主界面，其他情况下都禁用分页器
+      formSearch: {}, // 搜索 表单
+      dictSearch: {}, // 存放search信息，然后post给后端
+      isShowBack: false, // 控制主页面中（添加按钮/返回按钮）的显示
+      disabledSearch: true, // 控制（搜索按钮、清空按钮）是否禁用
 
       // @size-change="handleSizeChange" // 设置每页显示条数，pageSize改变时触发
       // @current-change="handleCurrentChange" // 设置当前页码，currentPage改变时触发
@@ -438,54 +438,58 @@ export default {
       pageSize: 5, // 每页显示条数
       currentPage: 1, // 当前页码
       total: 1, // 数据总条数
-      dictPagination: {}, // 用来存储pageSize currentPage，然后post给后端
 
-      rules: {
-        number: [{ validator: checkNumber, trigger: "blur" }],
-      },
+      params: {}, // 存放分页器参数和搜索表单信息，然后get给后端
+
+      // rules: {
+      //   number: [{ validator: checkNumber, trigger: "blur" }],
+      // },
     };
   },
   mounted() {
-    this.getJsonData(); // get包括 全部persons（改成了计算人头数）、省份provinces、城市cities
-    this.personsDataPagination(); // 专门用来分页获取persons
+    this.getJsonData(); // 利用get请求获取persons、provinces、ethnics，并完成分页、搜索功能
   },
   methods: {
-    // 获取后端数据，get
+    // 请求后端数据，get
     getJsonData() {
-      // 获取persons，get（基础版）
+      // 利用params完成分页、搜索，get
+      this.params = {
+        pageSize: this.pageSize,
+        currentPage: this.currentPage,
+      };
+      this.dictSearch = this.formSearch;
+      for (var key in this.dictSearch) {
+        this.params[key] = this.dictSearch[key];
+      }
+      console.log("params", this.params);
       axios
-        .get("api/persons/", { withCredentials: true })
+        .get(
+          "api/get_persons/",
+          { params: this.params }, // get传参只能使用 { params: { xxx: xxx } }
+          { withCredentials: true }
+        )
         .then((response) => {
-          // this.personsData = response.data;
-          // console.log("从后端拿到的全部person信息", this.personsData);
-          // console.log("personsData的items对应的列表", this.personsData.items);
-          this.total = response.data.items.length;
-          console.log("person数据总条数", this.total);
+          this.personsData = response.data;
+          console.log("api/get_persons/", this.personsData);
+          this.total = this.personsData.total; // 更新total
+          console.log("total", this.total);
+          console.log(
+            "-------------------------------------------------------------"
+          );
         })
         .catch((error) => {
-          console.error("报错", error);
+          Message.error("请求persons失败！");
+          console.log("报错", error);
         });
-
       // 获取provinces，get
       axios
         .get("api/get_provinces/", { withCredentials: true })
         .then((response) => {
           this.optionsProvince = response.data;
-          // console.log(
-          //   "从后端拿到的全部province信息",
-          //   this.optionsProvince,
-          //   typeof this.optionsProvince
-          // );
-          // console.log(
-          //   "optionsProvince的items对应的列表",
-          //   this.optionsProvince.items
-          // );
-          // console.log(
-          //   "该列表的一个字段",
-          //   this.optionsProvince.items[0].province
-          // );
+          console.log("api/get_provinces/", this.optionsProvince);
         })
         .catch((error) => {
+          Message.error("请求provinces失败！");
           console.error("报错", error);
         });
       // 获取ethnics，get
@@ -493,219 +497,156 @@ export default {
         .get("api/get_ethnics/", { withCredentials: true })
         .then((response) => {
           this.optionsEthnic = response.data;
-          // console.log("从后端拿到的全部ethnic信息", this.optionsEthnic);
-          // console.log(
-          //   "optionsEthnic的items对应的列表",
-          //   this.optionsEthnic.items
-          // );
-          // console.log("该列表的一个字段", this.optionsEthnic.items[0].ethnic);
+          console.log("api/get_ethnics/", this.optionsEthnic);
         })
         .catch((error) => {
+          Message.error("请求ethnics失败！");
           console.error("报错", error);
         });
     },
-    // 获取persons，post（分页版）
-    personsDataPagination() {
-      this.dictPagination = {
-        pageSize: this.pageSize,
-        currentPage: this.currentPage,
-      };
-      axios
-        .post("api/persons/", this.dictPagination, { withCredentials: true })
-        .then((response) => {
-          this.personsData = response.data;
-          console.log("从后端拿到的当前页person信息", this.personsData);
-          console.log("personData的items对应的列表", this.personsData.items);
-        })
-        .catch((error) => {
-          console.log("报错", error);
-        });
-      this.getJsonData(); // 更新total
-    },
-    // 添加person按钮
+    // 点击添加按钮
     addPerson() {
-      this.isShowForm = true;
-      this.isShowButton = true;
-      this.form = {};
-      this.formSearch = {}; // 清空搜索表单
-      this.disabledSearch = true; // 禁用搜索
-      // this.disabledAddUpdateDelete = true; // 禁用添加、修改、删除
-      this.disabledPagination = true; // 禁用分页器
+      this.isShowForm = true; // 显示form表单
+      this.form = {}; // 清空form表单
+      this.formSearch = {}; // 清空formSearch表单
+      this.disabledSearch = true; // 禁用搜索按钮
     },
-    // 添加person信息，post
+    // 点击提交按钮，添加person信息，post
     addSubmit() {
-      console.log("获取person的表单信息", this.form);
       this.dict = this.form;
-      console.log("将该person信息存到字典中", this.dict);
+      console.log("form -> dict", this.dict);
       axios
         .post("api/add_person/", this.dict, { withCredentials: true })
         .then((response) => {
-          console.log("response", response);
-          console.log("response.data", response.data);
-          // this.personsData = response.data;
-          // console.log("从后端拿到的全部person信息", this.personsData);
+          Message.success("添加成功！");
+          console.log("api/add_person/", response.data);
+          this.hiddenForm(); // 隐藏并清空form表单
+          this.getJsonData(); // 更新主页面数据
         })
         .catch((error) => {
+          Message.error("添加失败！");
           console.error("报错", error);
         });
-      this.hiddenForm();
-      this.getJsonData(); // 更新total
-      this.personsDataPagination(); // 更新personsData
-      // this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
-      this.disabledPagination = false; // 启用分页器
     },
-    // 删除person信息，post
-    deletePsrson(row) {
+    // 点击删除按钮，删除person信息，post
+    deletePerson(row) {
       this.dict = cloneDeep(row); // 深拷贝
-      console.log("该person的信息", this.dict);
       axios
         .post("api/delete_person/", this.dict, { withCredentials: true })
         .then((response) => {
-          console.log("response", response);
-          // console.log("response.data", response.data);
-          // this.personsData = response.data;
-          // console.log("从后端拿到的全部person信息", this.personsData);
+          Message.success("删除成功！");
+          console.log("api/delete_person/", response.data);
+          this.getJsonData(); // 更新total
+          this.isShowBack = false; // 隐藏返回按钮，显示添加按钮
         })
         .catch((error) => {
+          Message.error("删除失败！");
           console.error("报错", error);
         });
-      this.getJsonData(); // 更新total
-      this.personsDataPagination();
-      this.isShowAdd = true; // 显示添加按钮
     },
-    // 修改person按钮
+    // 点击修改按钮
     updatePerson(row) {
-      this.isShowForm = true;
+      this.isShowForm = true; // 显示form表单
+      this.isShowSave = true; // 显示保存按钮
       this.dict = cloneDeep(row); // 深拷贝
-      console.log("当前person的全部信息", this.dict);
-      this.form = this.dict; // form展示信息=======================================================
-      console.log("当前person的表单信息", this.form);
-      this.formSearch = {}; // 清空搜索表单
-      this.disabledSearch = true; // 禁用搜索
-      // this.disabledAddUpdateDelete = true; // 禁用添加、修改、删除
-      this.disabledPagination = true; // 禁用分页器
+      this.form = this.dict; // 在form表单上展示当前person信息
+      this.formSearch = {}; // 清空formSearch表单
+      this.disabledSearch = true; // 禁用搜索按钮
+      this.provinceNow(); // 获取当前省份的所有城市
     },
-    // 修改person信息，post
+    // 点击保存按钮，修改person信息，post
     updateSubmit() {
-      console.log("当前person的表单信息", this.form);
       this.dict = this.form;
-      console.log("将该person信息存到字典中", this.dict);
       axios
         .post("api/update_person/", this.dict, { withCredentials: true })
         .then((response) => {
-          console.log("response", response);
-          // console.log("response.data", response.data);
-          // this.personsData = response.data;
-          // console.log("从后端拿到的全部person信息", this.personsData);
+          Message.success("修改成功！");
+          console.log("api/update_person/", response.data);
+          this.hiddenForm(); // 隐藏并清空form表单
+          this.getJsonData(); // 更新主页面数据
         })
         .catch((error) => {
+          Message.error("修改失败！");
           console.error("报错", error);
         });
-      this.hiddenForm();
-      this.getJsonData();
-      this.personsDataPagination();
-      this.isShowAdd = true; // 显示添加按钮
-      // this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
-      this.disabledPagination = false; // 启用分页器
     },
-    // 取消按钮
+    // 点击取消按钮
     hiddenForm() {
-      this.isShowForm = false;
-      this.isShowButton = false;
+      this.isShowForm = false; // 隐藏form表单
+      this.isShowSave = false; // 隐藏保存按钮
       this.form = {}; // 清空form表单
-      // this.disabledAddUpdateDelete = false; // 启用添加、修改、删除
-      this.disabledPagination = false; // 启用分页器
     },
-    // 提交搜索表单，post
+    // 点击搜索按钮，提交搜索表单，post
     searchPerson() {
-      console.log("当前搜索表单信息", this.formSearch);
-      this.dictSearch = this.formSearch;
-      console.log("将该搜索信息存到字典中", this.dictSearch);
-      axios
-        .post("api/search_person/", this.dictSearch, { withCredentials: true })
-        .then((response) => {
-          console.log("response", response);
-          console.log("response.data", response.data);
-          this.personsData = response.data;
-          console.log(
-            "从后端拿到的符合搜索条件的全部person信息",
-            this.personsData
-          );
-        })
-        .catch((error) => {
-          console.log("报错", error);
-        });
+      this.dictSearch = {}; // 清空dictSearch
+      this.disabledSearch = true; // 禁用搜索按钮
+      this.isShowBack = true; // 显示返回按钮，隐藏添加按钮
+      this.getJsonData(); // 更新主页面数据
       this.clearFormSearch(); // 清空搜索表单
-      this.disabledSearch = true;
-      this.isShowAdd = false;
-      this.disabledPagination = true; // 禁用分页器
     },
-    // 返回主页面
+    // 点击返回按钮
     backHome() {
-      this.personsDataPagination();
-      this.isShowAdd = true;
-      this.disabledPagination = false; // 启用分页器
+      this.getJsonData(); // 更新主页面数据
+      this.isShowBack = false; // 隐藏返回按钮，显示添加按钮
     },
     // 启用搜索按钮
-    showSearch() {
-      this.disabledSearch = false; // 禁用搜索、清空按钮
+    showSearchButton() {
+      this.disabledSearch = false; // 启用搜索按钮
     },
-    // 清空搜索表单
+    // 点击清空按钮
     clearFormSearch() {
-      this.formSearch = {};
-      this.disabledSearch = true; // 禁用搜索、清空按钮
+      this.formSearch = {}; // 清空formSearch表单
+      this.disabledSearch = true; // 禁用搜索按钮
     },
-    // 搜索表单，省份选择器的选择结果 决定 城市选择器的数据
+    // 搜索表单中，根据省份请求城市数据
     searchProvinceNow() {
-      this.disabledSearch = false;
-      console.log("该省份选择器显示", this.formSearch.province);
-      this.dictSearch = { province: this.formSearch.province };
-      console.log("将该结果存入字典中", this.dictSearch);
-      // 获取cities，post（先获取省份，再post给后端，最后get回该省的所有城市）
+      this.disabledSearch = false; // 启用搜索按钮
+      console.log("search省份", this.formSearch.city__province__name);
+      this.dictSearch = {
+        city__province__name: this.formSearch.city__province__name,
+      };
+      // 获取cities，post
       axios
         .post("api/get_cities/", this.dictSearch, { withCredentials: true })
         .then((response) => {
           this.optionsCity = response.data;
-          console.log("从后端拿到的该省份的全部city", this.optionsCity);
-          console.log("optionsCity的items对应的列表", this.optionsCity.items);
-          console.log("该列表的一个字段", this.optionsCity.items[0].city);
+          console.log("api/get_cities/", this.optionsCity);
         })
         .catch((error) => {
           console.error("报错", error);
         });
     },
-    // 添加表单，省份选择器的选择结果 决定 城市选择器的数据
-    addProvinceNow() {
-      console.log("该省份选择器显示", this.form.province); // 输出省份
-      this.dict = { province: this.form.province };
-      console.log("将该结果存入字典中", this.dict);
-      // 获取cities，post（先获取省份，再post给后端，最后get回该省的所有城市）
+    // 添加/修改表单中，根据省份请求城市数据
+    provinceNow() {
+      console.log("add/update省份", this.form.city__province__name);
+      this.dict = { city__province__name: this.form.city__province__name };
+      // 获取cities，post
       axios
         .post("api/get_cities/", this.dict, { withCredentials: true })
         .then((response) => {
           this.optionsCity = response.data;
-          console.log("从后端拿到的该省份的全部city", this.optionsCity);
-          console.log("optionsCity的items对应的列表", this.optionsCity.items);
-          console.log("该列表的一个字段", this.optionsCity.items[0].city);
+          console.log("api/get_cities/", this.optionsCity);
         })
         .catch((error) => {
           console.error("报错", error);
         });
     },
+    // 添加/修改表单中，当省份选择器被修改时清空城市选择器
+    addOrUpdateProvince() {
+      this.form.city__name = ""; // 清空城市选择器
+      this.provinceNow();
+    },
     // pageSize改变时触发
     handleSizeChange(pageSize) {
-      console.log("分页器上显示pageSize", pageSize);
-      // this.currentPage = 1;
       this.pageSize = pageSize;
-      console.log("存储pageSize", this.pageSize);
-      this.personsDataPagination();
+      console.log("pageSize", this.pageSize);
+      this.getJsonData(); // 更新主页面数据
     },
     // currentPage改变时触发
     handleCurrentChange(currentPage) {
-      console.log("分页器上显示currentPage", currentPage);
       this.currentPage = currentPage;
-      console.log("存储currentPage", this.currentPage);
-      this.personsDataPagination();
+      console.log("currentPage", this.currentPage);
+      this.getJsonData(); // 更新主页面数据
     },
   },
 };
@@ -714,8 +655,6 @@ export default {
 <style scoped>
 .father {
   width: 80%;
-  /* height: 600px; */
-  /* background-color: pink; */
   margin: 10px auto;
   position: relative;
 }
@@ -730,17 +669,12 @@ export default {
   left: 50%;
   top: 100px;
   transform: translate(-50%, 0);
-  /* display: none; */
 }
 .pagination {
-  /* width: 600px; */
   height: 30px;
-  /* background-color: skyblue; */
   position: absolute;
   top: 60px;
   right: 0;
-  /* left: 50%;
-  transform: translate(-50%, 0); */
   z-index: 99;
 }
 </style>
