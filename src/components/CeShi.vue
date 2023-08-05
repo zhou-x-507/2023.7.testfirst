@@ -1,5 +1,11 @@
 <template>
   <div class="father">
+    <!-- 退出登录 -->
+    <div class="exit">
+      <el-button type="info" plain icon="el-icon-switch-button" @click="exit"
+        >注销</el-button
+      >
+    </div>
     <!-- 搜索栏，搜索表单formSearch -->
     <el-form ref="formSearch" :model="formSearch" :disabled="isShowForm">
       <el-form-item style="width: 200px; position: absolute; left: 0; top: 0">
@@ -114,7 +120,7 @@
           type="danger"
           plain
           @click="clearFormSearch"
-          :disabled="disabledSearch"
+          :disabled="disabledClear"
           >清空</el-button
         >
       </el-form-item>
@@ -175,7 +181,7 @@
           style="width: 150px; position: absolute; left: 25px; top: 120px"
         >
           <el-select
-            v-model="form.ethnic__name"
+            v-model="form.ethnic_id"
             placeholder="民族"
             filterable
             clearable
@@ -184,7 +190,7 @@
               v-for="item in optionsEthnic.items"
               :key="item.id"
               :label="item.name"
-              :value="item.name"
+              :value="item.id"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -227,7 +233,7 @@
           style="width: 150px; position: absolute; left: 25px; top: 220px"
         >
           <el-select
-            v-model="form.city__name"
+            v-model="form.city_id"
             placeholder="城市"
             filterable
             clearable
@@ -237,7 +243,7 @@
               v-for="item in optionsCity.items"
               :key="item.id"
               :label="item.name"
-              :value="item.name"
+              :value="item.id"
             >
             </el-option> </el-select
         ></el-form-item>
@@ -426,7 +432,8 @@ export default {
       formSearch: {}, // 搜索 表单
       dictSearch: {}, // 存放search信息，然后post给后端
       isShowBack: false, // 控制主页面中（添加按钮/返回按钮）的显示
-      disabledSearch: true, // 控制（搜索按钮、清空按钮）是否禁用
+      disabledSearch: true, // 控制（搜索按钮）是否禁用
+      disabledClear: true, // 控制（清空按钮）是否禁用
 
       // @size-change="handleSizeChange" // 设置每页显示条数，pageSize改变时触发
       // @current-change="handleCurrentChange" // 设置当前页码，currentPage改变时触发
@@ -458,6 +465,7 @@ export default {
         currentPage: this.currentPage,
       };
       this.dictSearch = this.formSearch;
+      console.log("getJsonData,dictSearch", this.dictSearch);
       for (var key in this.dictSearch) {
         this.params[key] = this.dictSearch[key];
       }
@@ -510,11 +518,13 @@ export default {
       this.form = {}; // 清空form表单
       this.formSearch = {}; // 清空formSearch表单
       this.disabledSearch = true; // 禁用搜索按钮
+      this.disabledClear = true; // 禁用清空按钮
     },
     // 点击提交按钮，添加person信息，post
     addSubmit() {
+      console.log("add,form", this.form);
       this.dict = this.form;
-      console.log("form -> dict", this.dict);
+      console.log("add,dict", this.dict);
       axios
         .post("api/add_person/", this.dict, { withCredentials: true })
         .then((response) => {
@@ -531,13 +541,13 @@ export default {
     // 点击删除按钮，删除person信息，post
     deletePerson(row) {
       this.dict = cloneDeep(row); // 深拷贝
+      console.log("delete,dict", this.dict);
       axios
         .post("api/delete_person/", this.dict, { withCredentials: true })
         .then((response) => {
           Message.success("删除成功！");
           console.log("api/delete_person/", response.data);
           this.getJsonData(); // 更新total
-          this.isShowBack = false; // 隐藏返回按钮，显示添加按钮
         })
         .catch((error) => {
           Message.error("删除失败！");
@@ -550,13 +560,15 @@ export default {
       this.isShowSave = true; // 显示保存按钮
       this.dict = cloneDeep(row); // 深拷贝
       this.form = this.dict; // 在form表单上展示当前person信息
-      this.formSearch = {}; // 清空formSearch表单
       this.disabledSearch = true; // 禁用搜索按钮
+      // this.disabledClear = true; // 禁用清空按钮
       this.provinceNow(); // 获取当前省份的所有城市
     },
     // 点击保存按钮，修改person信息，post
     updateSubmit() {
+      console.log("update,form", this.form);
       this.dict = this.form;
+      console.log("update,dict", this.dict);
       axios
         .post("api/update_person/", this.dict, { withCredentials: true })
         .then((response) => {
@@ -578,25 +590,29 @@ export default {
     },
     // 点击搜索按钮，提交搜索表单，post
     searchPerson() {
-      this.dictSearch = {}; // 清空dictSearch
-      this.disabledSearch = true; // 禁用搜索按钮
+      console.log("search,dictSearch", this.dictSearch);
       this.isShowBack = true; // 显示返回按钮，隐藏添加按钮
+      this.disabledSearch = true; // 禁用搜索按钮
+      this.pageSize = 5;
+      this.currentPage = 1;
       this.getJsonData(); // 更新主页面数据
-      this.clearFormSearch(); // 清空搜索表单
     },
     // 点击返回按钮
     backHome() {
-      this.getJsonData(); // 更新主页面数据
       this.isShowBack = false; // 隐藏返回按钮，显示添加按钮
+      this.clearFormSearch();
+      this.getJsonData(); // 更新主页面数据
     },
-    // 启用搜索按钮
+    // 触发搜索栏
     showSearchButton() {
       this.disabledSearch = false; // 启用搜索按钮
+      this.disabledClear = false; // 启用清空按钮
     },
     // 点击清空按钮
     clearFormSearch() {
       this.formSearch = {}; // 清空formSearch表单
       this.disabledSearch = true; // 禁用搜索按钮
+      this.disabledClear = true; // 禁用清空按钮
     },
     // 搜索表单中，根据省份请求城市数据
     searchProvinceNow() {
@@ -633,7 +649,7 @@ export default {
     },
     // 添加/修改表单中，当省份选择器被修改时清空城市选择器
     addOrUpdateProvince() {
-      this.form.city__name = ""; // 清空城市选择器
+      this.form.city_id = ""; // 清空城市选择器
       this.provinceNow();
     },
     // pageSize改变时触发
@@ -648,6 +664,14 @@ export default {
       console.log("currentPage", this.currentPage);
       this.getJsonData(); // 更新主页面数据
     },
+    // 退出登录
+    exit() {
+      // 移除本地存储中的 "Flag" 和 "isLogin"
+      window.localStorage.removeItem("Flag");
+
+      Message.info("已退出登录");
+      this.$router.push({ name: "login" });
+    },
   },
 };
 </script>
@@ -661,7 +685,7 @@ export default {
 .addOrUpdateForm {
   width: 700px;
   height: 340px;
-  background-color: #fff;
+  background-color: white;
   border-radius: 5px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
   position: absolute;
@@ -676,5 +700,10 @@ export default {
   top: 60px;
   right: 0;
   z-index: 99;
+}
+.exit {
+  position: absolute;
+  top: -35px;
+  left: -170px;
 }
 </style>
