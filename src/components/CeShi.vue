@@ -1,150 +1,129 @@
 <template>
-  <div class="father">
-    <!-- 退出登录 -->
-    <div class="exit">
-      <el-button type="info" plain icon="el-icon-switch-button" @click="exit"
-        >注销</el-button
-      >
-    </div>
+  <div class="box">
     <!-- 搜索栏，搜索表单formSearch -->
-    <el-form ref="formSearch" :model="formSearch" :disabled="isShowForm">
-      <el-form-item style="width: 200px; position: absolute; left: 0; top: 0">
-        <el-input
-          v-model="formSearch.number"
-          placeholder="身份证号码"
-          @change="showSearchButton"
-          onkeyup="this.value=this.value.replace(/[^\X0-9]/g, '')"
-        ></el-input>
-      </el-form-item>
-      <el-form-item
-        style="width: 150px; position: absolute; left: 210px; top: 0"
-      >
-        <el-input
-          v-model="formSearch.name"
-          placeholder="姓名"
-          @change="showSearchButton"
-        ></el-input>
-      </el-form-item>
-      <el-form-item
-        style="width: 150px; position: absolute; left: 370px; top: 0"
-        ><el-select
-          v-model="formSearch.sex"
-          placeholder="性别"
-          filterable
-          clearable
-          @change="showSearchButton"
+    <div class="searchForm">
+      <el-form ref="formSearch" :model="formSearch" :disabled="isShowForm">
+        <el-form-item
+          style="width: 150px; position: absolute; left: 10px; top: 10px"
         >
-          <el-option
-            v-for="item in optionsSex"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          >
-          </el-option> </el-select
-      ></el-form-item>
-      <el-form-item
-        style="width: 150px; position: absolute; left: 530px; top: 0"
-        ><el-select
-          v-model="formSearch.ethnic__name"
-          placeholder="民族"
-          filterable
-          clearable
-          @change="showSearchButton"
-        >
-          <el-option
-            v-for="item in optionsEthnic.items"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
-          >
-          </el-option> </el-select
-      ></el-form-item>
-      <el-form-item
-        style="width: 150px; position: absolute; left: 690px; top: 0"
-      >
-        <el-col>
-          <el-date-picker
-            v-model="formSearch.birthday"
-            type="date"
-            placeholder="生日"
-            value-format="yyyy-MM-dd"
-            style="width: 150px"
+          <el-input
+            v-model="formSearch.number"
+            placeholder="身份证号码"
             @change="showSearchButton"
-          ></el-date-picker>
-        </el-col>
-      </el-form-item>
-      <el-form-item
-        style="width: 150px; position: absolute; left: 850px; top: 0"
-        ><el-select
-          v-model="formSearch.city__province__name"
-          placeholder="省份"
-          filterable
-          clearable
-          @change="searchProvinceNow"
+            onkeyup="this.value=this.value.replace(/[^\X0-9]/g, '')"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 170px; top: 10px"
         >
-          <el-option
-            v-for="item in optionsProvince.items"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
+          <el-input
+            v-model="formSearch.name"
+            placeholder="姓名"
+            @change="showSearchButton"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 330px; top: 10px"
+          ><el-select
+            v-model="formSearch.sex"
+            placeholder="性别"
+            filterable
+            clearable
+            @change="showSearchButton"
           >
-          </el-option> </el-select
-      ></el-form-item>
-      <el-form-item
-        style="width: 150px; position: absolute; left: 1010px; top: 0"
-        ><el-select
-          v-model="formSearch.city__name"
-          placeholder="城市"
-          filterable
-          clearable
-          :disabled="!formSearch.city__province__name"
-          @change="showSearchButton"
-        >
-          <el-option
-            v-for="item in optionsCity.items"
-            :key="item.id"
-            :label="item.name"
-            :value="item.name"
+            <el-option
+              v-for="item in optionsSex"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 490px; top: 10px"
+          ><el-select
+            v-model="formSearch.ethnic__name"
+            placeholder="民族"
+            filterable
+            clearable
+            @change="showSearchButton"
           >
-          </el-option> </el-select
-      ></el-form-item>
-      <el-form-item style="position: absolute; right: 0; top: 0">
-        <el-button
-          type="primary"
-          @click="searchPerson"
-          icon="el-icon-search"
-          :disabled="disabledSearch"
-          >搜索</el-button
+            <el-option
+              v-for="item in optionsEthnic.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 650px; top: 10px"
         >
-        <el-button
-          type="danger"
-          plain
-          @click="clearFormSearch"
-          :disabled="disabledClear"
-          >清空</el-button
-        >
-      </el-form-item>
-    </el-form>
-    <!-- 返回按钮 -->
-    <el-button
-      type="primary"
-      plain
-      @click="backHome"
-      style="position: absolute; left: 0px; top: 50px"
-      v-if="isShowBack"
-      icon="el-icon-back"
-      >返回</el-button
-    >
-    <!-- 添加按钮 -->
-    <el-button
-      type="primary"
-      @click="addPerson"
-      style="position: absolute; left: 0px; top: 50px"
-      v-if="!isShowBack"
-      icon="el-icon-plus"
-      :disabled="isShowForm"
-      >添加</el-button
-    >
+          <el-col>
+            <el-date-picker
+              v-model="formSearch.birthday"
+              type="date"
+              placeholder="生日"
+              value-format="yyyy-MM-dd"
+              style="width: 150px"
+              @change="showSearchButton"
+            ></el-date-picker>
+          </el-col>
+        </el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 810px; top: 10px"
+          ><el-select
+            v-model="formSearch.city__province__name"
+            placeholder="省份"
+            filterable
+            clearable
+            @change="searchProvinceNow"
+          >
+            <el-option
+              v-for="item in optionsProvince.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 970px; top: 10px"
+          ><el-select
+            v-model="formSearch.city__name"
+            placeholder="城市"
+            filterable
+            clearable
+            :disabled="!formSearch.city__province__name"
+            @change="showSearchButton"
+          >
+            <el-option
+              v-for="item in optionsCity.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item style="position: absolute; right: 10px; top: 10px">
+          <el-button
+            type="primary"
+            @click="searchPerson"
+            icon="el-icon-search"
+            :disabled="disabledSearch"
+            >搜索</el-button
+          >
+          <el-button
+            type="danger"
+            plain
+            @click="clearFormSearch"
+            :disabled="disabledClear"
+            >清空</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </div>
+
     <!-- 添加/修改表单form -->
     <div class="addOrUpdateForm" v-show="isShowForm">
       <el-form ref="form" :model="form">
@@ -264,61 +243,192 @@
         </el-form-item>
       </el-form>
     </div>
-    <!-- 数据表格 -->
-    <el-table
-      :data="personsData.items"
-      border
-      style="width: 100%; position: absolute; left: 0px; top: 100px"
-      height="500"
-    >
-      <el-table-column prop="number" label="身份证号码" width="180">
-      </el-table-column>
-      <el-table-column prop="name" label="姓名" width="150"> </el-table-column>
-      <el-table-column prop="sex" label="性别" width="65"> </el-table-column>
-      <el-table-column prop="ethnic__name" label="民族" width="100">
-      </el-table-column>
-      <el-table-column prop="birthday" label="生日" width="110" sortable>
-      </el-table-column>
-      <el-table-column prop="city__province__name" label="省份" width="150">
-      </el-table-column>
-      <el-table-column prop="city__name" label="城市" width="150">
-      </el-table-column>
-      <el-table-column
-        prop="address"
-        label="详细地址（县、镇、村）"
-      ></el-table-column>
-      <el-table-column fixed="right" label="操作" width="120">
-        <template slot-scope="{ row, $index }">
-          <el-button
-            type="info"
-            size="small"
-            @click="updatePerson(row, $index)"
-            icon="el-icon-edit"
-            :disabled="isShowForm"
-          ></el-button>
-          <el-button
-            type="danger"
-            size="small"
-            @click="deletePerson(row, $index)"
-            icon="el-icon-delete"
-            :disabled="isShowForm"
-          ></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <!-- 分页器 -->
-    <div class="pagination">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5, 10, 15, 20]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        :disabled="isShowForm"
+
+    <!-- 内容主体：添加、数据表格、分页器 -->
+    <div class="content">
+      <!-- 返回按钮 -->
+      <el-button
+        type="primary"
+        plain
+        @click="backHome"
+        style="position: absolute; left: 10px; top: 10px"
+        v-if="isShowBack"
+        icon="el-icon-back"
+        >返回</el-button
       >
-      </el-pagination>
+      <!-- 添加按钮 -->
+      <el-button
+        type="primary"
+        @click="addPerson"
+        style="position: absolute; left: 10px; top: 10px"
+        v-if="!isShowBack"
+        icon="el-icon-plus"
+        :disabled="isShowForm"
+        >添加</el-button
+      >
+      <!-- 数据表格 -->
+      <el-table
+        :data="personsData.items"
+        border
+        style="
+          width: 100%;
+          position: absolute;
+          left: 0px;
+          top: 50px;
+          border-radius: 8px;
+        "
+        height="500"
+      >
+        <el-table-column prop="number" label="身份证号码" width="180">
+        </el-table-column>
+        <el-table-column prop="name" label="姓名" width="150">
+        </el-table-column>
+        <el-table-column prop="sex" label="性别" width="65"> </el-table-column>
+        <el-table-column prop="ethnic__name" label="民族" width="100">
+        </el-table-column>
+        <el-table-column prop="birthday" label="生日" width="110" sortable>
+        </el-table-column>
+        <el-table-column prop="city__province__name" label="省份" width="150">
+        </el-table-column>
+        <el-table-column prop="city__name" label="城市" width="150">
+        </el-table-column>
+        <el-table-column
+          prop="address"
+          label="详细地址（县、镇、村）"
+        ></el-table-column>
+        <el-table-column fixed="right" label="操作" width="120">
+          <template slot-scope="{ row, $index }">
+            <el-button
+              type="info"
+              size="small"
+              @click="updatePerson(row, $index)"
+              icon="el-icon-edit"
+              :disabled="isShowForm"
+            ></el-button>
+            <el-button
+              type="danger"
+              size="small"
+              @click="deletePerson(row, $index)"
+              icon="el-icon-delete"
+              :disabled="isShowForm"
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页器 -->
+      <div class="pagination">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 15, 20]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          :disabled="isShowForm"
+        >
+        </el-pagination>
+      </div>
+    </div>
+
+    <!-- 退出登录 -->
+    <!-- <div class="exit">
+      <el-button type="info" plain icon="el-icon-switch-button" @click="exit"
+        >注销</el-button
+      >
+    </div> -->
+
+    <!-- redis练习 -->
+    <div class="test">
+      <el-form :model="testForm" ref="testFrom">
+        <el-form-item
+          style="width: 150px; position: absolute; left: 10px; top: 10px"
+        >
+          <el-select
+            v-model="testForm.country"
+            placeholder="国家"
+            clearable
+            filterable
+            @change="getTestProvince"
+          >
+            <el-option
+              v-for="item in testCountry.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 170px; top: 10px"
+          ><el-select
+            v-model="testForm.province"
+            placeholder="省份"
+            filterable
+            clearable
+            @change="getTestCity"
+          >
+            <el-option
+              v-for="item in testProvince.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 330px; top: 10px"
+          ><el-select
+            v-model="testForm.city"
+            placeholder="城市"
+            filterable
+            clearable
+            @change="getTestPerson"
+          >
+            <el-option
+              v-for="item in testCity.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 490px; top: 10px"
+          ><el-select
+            v-model="testForm.person"
+            placeholder="公民"
+            filterable
+            clearable
+          >
+            <el-option
+              v-for="item in testPerson.items"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+            >
+            </el-option> </el-select
+        ></el-form-item>
+        <el-form-item
+          style="width: 150px; position: absolute; left: 650px; top: 10px"
+        >
+          <el-link
+            type="primary"
+            :underline="false"
+            href="https://www.runoob.com/w3cnote/python-redis-intro.html"
+            target="_blank"
+            >python redis</el-link
+          >
+        </el-form-item>
+      </el-form>
+      <!-- 退出登录 -->
+      <div class="exit">
+        user_id:{{ userNow.user_id }}
+        <el-button type="info" plain icon="el-icon-switch-button" @click="exit"
+          >注销</el-button
+        >
+      </div>
     </div>
   </div>
 </template>
@@ -326,8 +436,9 @@
 <script>
 import axios from "axios";
 axios.defaults.withCredentials = true;
-import cloneDeep from "lodash/cloneDeep";
+import cloneDeep from "lodash/cloneDeep"; // 深拷贝
 import { Message } from "element-ui";
+import jwtDecode from "jwt-decode"; // 解析token
 
 export default {
   name: "CeShi",
@@ -435,13 +546,6 @@ export default {
       disabledSearch: true, // 控制（搜索按钮）是否禁用
       disabledClear: true, // 控制（清空按钮）是否禁用
 
-      // @size-change="handleSizeChange" // 设置每页显示条数，pageSize改变时触发
-      // @current-change="handleCurrentChange" // 设置当前页码，currentPage改变时触发
-      // :current-page="currentPage4" // 当前页码
-      // :page-sizes="[5, 10, 15]" // 每页显示条数选择器
-      // :page-size="10" // 每页显示条数
-      // layout="total, sizes, prev, pager, next, jumper" // 组件布局，从左到右依次摆放
-      // :total="400" // 数据总条数
       pageSize: 5, // 每页显示条数
       currentPage: 1, // 当前页码
       total: 1, // 数据总条数
@@ -451,12 +555,28 @@ export default {
       // rules: {
       //   number: [{ validator: checkNumber, trigger: "blur" }],
       // },
+
+      userNow: "", // 存放当前登录用户的信息，user_id
+
+      // redis练习
+      testForm: {},
+      testCountry: [], // 存放国家数据，用于国家选择器展示
+      testProvince: [], // 存放省份数据，同上
+      testCity: [], // 存放城市数据，同上
+      testPerson: [], // 存放公民数据，同上
     };
   },
   mounted() {
     this.getJsonData(); // 利用get请求获取persons、provinces、ethnics，并完成分页、搜索功能
+    this.getTestCountry(); // 练习
+    this.welcome();
   },
   methods: {
+    welcome() {
+      let token = window.localStorage.getItem("token");
+      this.userNow = jwtDecode(token);
+      console.log("当前登录用户的id：", this.userNow.user_id);
+    },
     // 请求后端数据，get
     getJsonData() {
       // 利用params完成分页、搜索，get
@@ -472,18 +592,15 @@ export default {
       console.log("params", this.params);
       axios
         .get(
-          "api/get_persons/",
+          "api/persons/",
           { params: this.params }, // get传参只能使用 { params: { xxx: xxx } }
           { withCredentials: true }
         )
         .then((response) => {
           this.personsData = response.data;
-          console.log("api/get_persons/", this.personsData);
+          console.log("get请求api/persons/", this.personsData);
           this.total = this.personsData.total; // 更新total
           console.log("total", this.total);
-          console.log(
-            "-------------------------------------------------------------"
-          );
         })
         .catch((error) => {
           Message.error("请求persons失败！");
@@ -526,10 +643,10 @@ export default {
       this.dict = this.form;
       console.log("add,dict", this.dict);
       axios
-        .post("api/add_person/", this.dict, { withCredentials: true })
+        .post("api/persons/", this.dict, { withCredentials: true })
         .then((response) => {
           Message.success("添加成功！");
-          console.log("api/add_person/", response.data);
+          console.log("post请求api/persons/", response.data);
           this.hiddenForm(); // 隐藏并清空form表单
           this.getJsonData(); // 更新主页面数据
         })
@@ -542,11 +659,13 @@ export default {
     deletePerson(row) {
       this.dict = cloneDeep(row); // 深拷贝
       console.log("delete,dict", this.dict);
-      axios
-        .post("api/delete_person/", this.dict, { withCredentials: true })
+      axios // 删除请求，delete，url里面要携带被删除目标的id
+        .delete("api/persons/" + this.dict.id + "/", {
+          withCredentials: true,
+        })
         .then((response) => {
           Message.success("删除成功！");
-          console.log("api/delete_person/", response.data);
+          console.log("delete请求api/persons/", response.data);
           this.getJsonData(); // 更新total
         })
         .catch((error) => {
@@ -569,11 +688,13 @@ export default {
       console.log("update,form", this.form);
       this.dict = this.form;
       console.log("update,dict", this.dict);
-      axios
-        .post("api/update_person/", this.dict, { withCredentials: true })
+      axios // 更新请求，put，url里面要携带被修改目标的id
+        .put("api/persons/" + this.dict.id + "/", this.dict, {
+          withCredentials: true,
+        })
         .then((response) => {
           Message.success("修改成功！");
-          console.log("api/update_person/", response.data);
+          console.log("put请求api/persons/", response.data);
           this.hiddenForm(); // 隐藏并清空form表单
           this.getJsonData(); // 更新主页面数据
         })
@@ -666,44 +787,158 @@ export default {
     },
     // 退出登录
     exit() {
-      // 移除本地存储中的 "Flag" 和 "isLogin"
-      window.localStorage.removeItem("Flag");
+      // 移除本地存储中的 token
+      window.localStorage.removeItem("token");
 
       Message.info("已退出登录");
       this.$router.push({ name: "login" });
+    },
+
+    // redis练习
+    getTestCountry() {
+      delete this.testForm.country;
+      delete this.testForm.province;
+      delete this.testForm.city;
+      delete this.testForm.person;
+      axios
+        .get("api/redis_test/")
+        .then((response) => {
+          this.testCountry = response.data;
+        })
+        .catch((error) => {
+          console.log("报错", error);
+        });
+    },
+    // 使用country选择器，更新provinces，清空cities、persons
+    getTestProvince() {
+      delete this.testForm.province; // 清空province选择器
+      delete this.testForm.city; // 清空city选择器
+      delete this.testForm.person; // 清空person选择器
+      axios
+        .get("api/redis_test/", { params: { country: this.testForm.country } })
+        .then((response) => {
+          this.testProvince = response.data; // 更新provinces
+          this.testCity = []; // 清空cities
+          this.testPerson = []; // 清空persons
+        })
+        .catch((error) => {
+          console.log("报错", error);
+        });
+    },
+    // 使用province选择器，更新cities，清空persons
+    getTestCity() {
+      delete this.testForm.city;
+      delete this.testForm.person;
+      axios
+        .get("api/redis_test/", {
+          params: { province: this.testForm.province },
+        })
+        .then((response) => {
+          this.testCity = response.data;
+          this.testPerson = [];
+        })
+        .catch((error) => {
+          console.log("报错", error);
+        });
+    },
+    // 使用city选择器，更新persons
+    getTestPerson() {
+      delete this.testForm.person;
+      axios
+        .get("api/redis_test/", { params: { city: this.testForm.city } })
+        .then((response) => {
+          this.testPerson = response.data;
+        })
+        .catch((error) => {
+          console.log("报错", error);
+        });
     },
   },
 };
 </script>
 
 <style scoped>
-.father {
+.box {
   width: 80%;
-  margin: 10px auto;
+  margin: 0 auto;
   position: relative;
 }
+.searchForm {
+  /* 搜索表单 */
+  width: 100%;
+  height: 60px;
+  margin: 10px auto;
+  background-color: whitesmoke;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.6s;
+}
+.searchForm:hover {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
+}
+.content {
+  /* 主体内容 */
+  width: 100%;
+  height: 600px;
+  margin: 10px auto;
+  background-color: whitesmoke;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: all 0.6s;
+}
+.content:hover {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
+}
+.pagination {
+  /* 分页器 */
+  height: 40px;
+  /* background-color: pink; */
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  z-index: 99;
+}
 .addOrUpdateForm {
+  /* 添加表单 */
   width: 700px;
   height: 340px;
   background-color: white;
-  border-radius: 5px;
+  border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
   position: absolute;
   z-index: 100;
   left: 50%;
   top: 100px;
   transform: translate(-50%, 0);
+  transition: all 0.3s;
 }
-.pagination {
-  height: 30px;
-  position: absolute;
-  top: 60px;
-  right: 0;
-  z-index: 99;
+.addOrUpdateForm:hover {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
 .exit {
+  /* 注销按钮 */
   position: absolute;
-  top: -35px;
-  left: -170px;
+  top: 10px;
+  right: 10px;
+}
+.test {
+  /* redis练习 */
+  width: 100%;
+  height: 60px;
+  margin: 10px auto;
+  background-color: whitesmoke;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 670px;
+  transition: all 0.6s;
+}
+.test:hover {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
 </style>

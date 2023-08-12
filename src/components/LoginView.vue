@@ -1,7 +1,7 @@
 <template>
   <div class="box">
     <div class="login" v-if="isLogin">
-      <h2>登录/login</h2>
+      <h2>登录</h2>
       <el-form
         :model="form"
         ref="form"
@@ -26,7 +26,7 @@
             style="width: 250px"
           ></el-input>
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
+        <!-- <el-form-item label="邮箱" prop="email">
           <el-input
             type="email"
             v-model="form.email"
@@ -52,22 +52,22 @@
             :disabled="disabledGetCodeButton"
             >验证码</el-button
           >
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item>
           <el-button type="primary" @click="submitLogin">提交</el-button>
           <el-button @click="resetForm">重置</el-button>
-          <el-button
+          <el-link
             type="primary"
-            plain
+            :underline="false"
             @click="toRegisterOrLogin"
-            style="margin-left: 16px"
-            >去注册</el-button
+            style="margin-left: 25px"
+            >注册链接</el-link
           >
         </el-form-item>
       </el-form>
     </div>
     <div class="register" v-if="!isLogin">
-      <h2>注册/register</h2>
+      <h2>注册</h2>
       <el-form
         :model="form"
         ref="form"
@@ -117,26 +117,25 @@
             v-model="form.code"
             placeholder="code"
             clearable
-            style="width: 140px"
+            style="width: 130px"
           ></el-input>
           <el-button
             type="primary"
-            icon="el-icon-message"
             @click="getCode"
-            style="margin-left: 7px"
+            style="margin-left: 8px"
             :disabled="disabledGetCodeButton"
-            >验证码</el-button
+            >获取验证码</el-button
           >
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitRegister">提交</el-button>
           <el-button @click="resetForm">重置</el-button>
-          <el-button
+          <el-link
             type="primary"
-            plain
+            :underline="false"
             @click="toRegisterOrLogin"
-            style="margin-left: 16px"
-            >去登录</el-button
+            style="margin-left: 25px"
+            >取消注册</el-link
           >
         </el-form-item>
       </el-form>
@@ -166,25 +165,30 @@ export default {
       console.log("submitLogin", this.form);
       this.dict = this.form;
       axios
-        .post("api/login/", this.dict, { withCredentials: true })
+        // .post("api/login/", this.dict, { withCredentials: true })
+        .post("api/token/", this.dict, { withCredentials: true }) // "api/token/" JWT 登录认证
         .then((response) => {
           console.log("api/login/", response.data);
-          if (response.data.item == "登录成功") {
-            Message.success("登录成功！");
+          console.log("setItem_token", response.data.access);
+          window.localStorage.setItem("token", response.data.access);
+          this.$router.push({ name: "ceshi" });
 
-            // 将键为 "Flag"，值为 "isLogin" 的数据存储到浏览器的本地存储中。如果本地存在这对密钥，说明已经登录过了，并且记住了登录状态。
-            window.localStorage.setItem("Flag", "isLogin");
-
-            this.$router.push({ name: "ceshi" });
-          } else if (response.data.item == "用户名或密码错误") {
-            Message.error("用户名或密码错误！");
-          } else if (response.data.item == "邮箱不存在") {
-            Message.error("该用户不存在！");
-          } else if (response.data.item == "验证码错误") {
-            Message.error("验证码错误！");
-          }
+          // 注意：配置 JWT 登录认证之后，后面这些就没用了
+          // if (response.data.message == "登录成功") {
+          //   Message.success("登录成功！");
+          //   // // 将键为 "Flag"，值为 "isLogin" 的数据存储到浏览器的本地存储中。如果本地存在这对密钥，说明已经登录过了，并且记住了登录状态。
+          //   // window.localStorage.setItem("Flag", "isLogin");
+          //   this.$router.push({ name: "ceshi" });
+          // } else if (response.data.message == "用户名或密码错误") {
+          //   Message.error("用户名或密码错误！");
+          // } else if (response.data.message == "邮箱不存在") {
+          //   Message.error("该用户不存在！");
+          // } else if (response.data.message == "验证码错误") {
+          //   Message.error("验证码错误！");
+          // }
         })
         .catch((error) => {
+          Message.error("请填写完整！");
           console.log("报错", error);
         });
     },
@@ -195,20 +199,21 @@ export default {
       axios
         .post("api/register/", this.dict, { withCredentials: true })
         .then((response) => {
-          console.log("api/register/", response.data);
-          if (response.data.item == "注册成功") {
+          console.log("post请求api/register/", response.data);
+          if (response.data.message == "注册成功") {
             Message.success("注册成功！");
             this.isLogin = !this.isLogin;
             this.form = {};
-          } else if (response.data.item == "邮箱已注册") {
-            Message.error("邮箱已被注册！");
-          } else if (response.data.item == "验证码错误") {
+          } else if (response.data.message == "邮箱已注册") {
+            Message.error("邮箱已注册！");
+          } else if (response.data.message == "验证码错误") {
             Message.error("验证码错误！");
-          } else if (response.data.item == "注册失败") {
-            Message.error("注册失败！");
+          } else if (response.data.message == "验证码过期") {
+            Message.error("验证码过期！");
           }
         })
         .catch((error) => {
+          Message.error("请填写完整！");
           console.log("报错", error);
         });
     },
@@ -225,18 +230,18 @@ export default {
     // 获取验证码
     getCode() {
       this.disabledGetCodeButton = true; // 禁用获取验证码按钮
-      console.log("getCode", this.form.email);
+      console.log("email", this.form.email);
       this.params = {
         email: this.form.email,
       };
       axios
         .get(
-          "api/get_code/",
+          "api/register/",
           { params: this.params },
           { withCredentials: true }
         )
         .then((response) => {
-          console.log("api/get_code/", response.data);
+          console.log("get请求api/register/", response.data);
           // this.disabledGetCodeButton = true; // 禁用获取验证码按钮
         })
         .catch((error) => {
@@ -259,10 +264,15 @@ export default {
   width: 500px;
   height: 500px;
   background-color: white;
-  border-radius: 10px;
+  border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
-  margin: 50px auto;
+  margin: 100px auto;
   position: relative;
+  transition: all 0.3s;
+}
+.box:hover {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
 .box h2 {
   text-align: center;

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <router-link to="login">login</router-link>
-    <router-link to="ceshi">ceshi</router-link>
+    <!-- <router-link to="login">login</router-link>
+    <router-link to="ceshi">ceshi</router-link> -->
     <router-view></router-view>
     <!-- <LoginView />
     <CeShi /> -->
