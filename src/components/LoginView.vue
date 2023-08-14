@@ -26,33 +26,6 @@
             style="width: 250px"
           ></el-input>
         </el-form-item>
-        <!-- <el-form-item label="邮箱" prop="email">
-          <el-input
-            type="email"
-            v-model="form.email"
-            placeholder="email"
-            clearable
-            style="width: 250px"
-            @change="getCodeButton"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="验证码" prop="code">
-          <el-input
-            type="text"
-            v-model="form.code"
-            placeholder="code"
-            clearable
-            style="width: 140px"
-          ></el-input>
-          <el-button
-            type="primary"
-            icon="el-icon-message"
-            @click="getCode"
-            style="margin-left: 7px"
-            :disabled="disabledGetCodeButton"
-            >验证码</el-button
-          >
-        </el-form-item> -->
         <el-form-item>
           <el-button type="primary" @click="submitLogin">提交</el-button>
           <el-button @click="resetForm">重置</el-button>
@@ -268,12 +241,16 @@ export default {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
   margin: 100px auto;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.5s;
 }
 .box:hover {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
+/* .box:active {
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+} */
 .box h2 {
   text-align: center;
 }

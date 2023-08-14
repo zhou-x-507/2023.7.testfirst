@@ -338,21 +338,21 @@
       >
     </div> -->
 
-    <!-- redis练习 -->
+    <!-- redis练习，django-redis练习 -->
     <div class="test">
-      <el-form :model="testForm" ref="testFrom">
+      <el-form :model="redisForm" ref="testFrom">
         <el-form-item
           style="width: 150px; position: absolute; left: 10px; top: 10px"
         >
           <el-select
-            v-model="testForm.country"
+            v-model="redisForm.country"
             placeholder="国家"
             clearable
             filterable
-            @change="getTestProvince"
+            @change="getRedisProvince"
           >
             <el-option
-              v-for="item in testCountry.items"
+              v-for="item in redisCountry.items"
               :key="item.id"
               :label="item.name"
               :value="item.name"
@@ -363,14 +363,14 @@
         <el-form-item
           style="width: 150px; position: absolute; left: 170px; top: 10px"
           ><el-select
-            v-model="testForm.province"
+            v-model="redisForm.province"
             placeholder="省份"
             filterable
             clearable
-            @change="getTestCity"
+            @change="getRedisCity"
           >
             <el-option
-              v-for="item in testProvince.items"
+              v-for="item in redisProvince.items"
               :key="item.id"
               :label="item.name"
               :value="item.name"
@@ -380,14 +380,14 @@
         <el-form-item
           style="width: 150px; position: absolute; left: 330px; top: 10px"
           ><el-select
-            v-model="testForm.city"
+            v-model="redisForm.city"
             placeholder="城市"
             filterable
             clearable
-            @change="getTestPerson"
+            @change="getRedisPerson"
           >
             <el-option
-              v-for="item in testCity.items"
+              v-for="item in redisCity.items"
               :key="item.id"
               :label="item.name"
               :value="item.name"
@@ -397,13 +397,13 @@
         <el-form-item
           style="width: 150px; position: absolute; left: 490px; top: 10px"
           ><el-select
-            v-model="testForm.person"
+            v-model="redisForm.person"
             placeholder="公民"
             filterable
             clearable
           >
             <el-option
-              v-for="item in testPerson.items"
+              v-for="item in redisPerson.items"
               :key="item.id"
               :label="item.name"
               :value="item.name"
@@ -443,7 +443,7 @@ import jwtDecode from "jwt-decode"; // 解析token
 export default {
   name: "CeShi",
   data() {
-    // ==========================================身份证校验===============================================
+    // ==========身份证校验==========
     // (1) :rules="rules" 动态绑定校验规则属性
     // (2) prop="xxx" 绑定需要校验的属性
     // (3) data() {...} 在data中定义变量，接收校验结果
@@ -558,17 +558,17 @@ export default {
 
       userNow: "", // 存放当前登录用户的信息，user_id
 
-      // redis练习
-      testForm: {},
-      testCountry: [], // 存放国家数据，用于国家选择器展示
-      testProvince: [], // 存放省份数据，同上
-      testCity: [], // 存放城市数据，同上
-      testPerson: [], // 存放公民数据，同上
+      // redis练习，django-redis练习
+      redisForm: {},
+      redisCountry: [], // 存放国家数据，用于国家选择器展示
+      redisProvince: [], // 存放省份数据，同上
+      redisCity: [], // 存放城市数据，同上
+      redisPerson: [], // 存放公民数据，同上
     };
   },
   mounted() {
     this.getJsonData(); // 利用get请求获取persons、provinces、ethnics，并完成分页、搜索功能
-    this.getTestCountry(); // 练习
+    this.getRedisCountry(); // 练习
     this.welcome();
   },
   methods: {
@@ -738,6 +738,7 @@ export default {
     // 搜索表单中，根据省份请求城市数据
     searchProvinceNow() {
       this.disabledSearch = false; // 启用搜索按钮
+      this.disabledClear = false; // 启用清空按钮
       console.log("search省份", this.formSearch.city__province__name);
       this.dictSearch = {
         city__province__name: this.formSearch.city__province__name,
@@ -794,60 +795,63 @@ export default {
       this.$router.push({ name: "login" });
     },
 
-    // redis练习
-    getTestCountry() {
-      delete this.testForm.country;
-      delete this.testForm.province;
-      delete this.testForm.city;
-      delete this.testForm.person;
+    // redis练习，django-redis练习
+    getRedisCountry() {
+      delete this.redisForm.country;
+      delete this.redisForm.province;
+      delete this.redisForm.city;
+      delete this.redisForm.person;
       axios
-        .get("api/redis_test/")
+        // .get("api/redis_test/")
+        .get("api/django_redis/")
         .then((response) => {
-          this.testCountry = response.data;
+          this.redisCountry = response.data;
         })
         .catch((error) => {
           console.log("报错", error);
         });
     },
     // 使用country选择器，更新provinces，清空cities、persons
-    getTestProvince() {
-      delete this.testForm.province; // 清空province选择器
-      delete this.testForm.city; // 清空city选择器
-      delete this.testForm.person; // 清空person选择器
+    getRedisProvince() {
+      delete this.redisForm.province; // 清空province选择器
+      delete this.redisForm.city; // 清空city选择器
+      delete this.redisForm.person; // 清空person选择器
       axios
-        .get("api/redis_test/", { params: { country: this.testForm.country } })
+        .get("api/django_redis/", {
+          params: { country: this.redisForm.country },
+        })
         .then((response) => {
-          this.testProvince = response.data; // 更新provinces
-          this.testCity = []; // 清空cities
-          this.testPerson = []; // 清空persons
+          this.redisProvince = response.data; // 更新provinces
+          this.redisCity = []; // 清空cities
+          this.redisPerson = []; // 清空persons
         })
         .catch((error) => {
           console.log("报错", error);
         });
     },
     // 使用province选择器，更新cities，清空persons
-    getTestCity() {
-      delete this.testForm.city;
-      delete this.testForm.person;
+    getRedisCity() {
+      delete this.redisForm.city;
+      delete this.redisForm.person;
       axios
-        .get("api/redis_test/", {
-          params: { province: this.testForm.province },
+        .get("api/django_redis/", {
+          params: { province: this.redisForm.province },
         })
         .then((response) => {
-          this.testCity = response.data;
-          this.testPerson = [];
+          this.redisCity = response.data;
+          this.redisPerson = [];
         })
         .catch((error) => {
           console.log("报错", error);
         });
     },
     // 使用city选择器，更新persons
-    getTestPerson() {
-      delete this.testForm.person;
+    getRedisPerson() {
+      delete this.redisForm.person;
       axios
-        .get("api/redis_test/", { params: { city: this.testForm.city } })
+        .get("api/django_redis/", { params: { city: this.redisForm.city } })
         .then((response) => {
-          this.testPerson = response.data;
+          this.redisPerson = response.data;
         })
         .catch((error) => {
           console.log("报错", error);
@@ -871,12 +875,16 @@ export default {
   background-color: whitesmoke;
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
-  transition: all 0.6s;
+  transition: all 0.5s;
 }
 .searchForm:hover {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
+/* .searchForm:active {
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+} */
 .content {
   /* 主体内容 */
   width: 100%;
@@ -886,12 +894,16 @@ export default {
   border-radius: 4px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
   position: relative;
-  transition: all 0.6s;
+  transition: all 0.5s;
 }
 .content:hover {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
+/* .content:active {
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+} */
 .pagination {
   /* 分页器 */
   height: 40px;
@@ -913,12 +925,16 @@ export default {
   left: 50%;
   top: 100px;
   transform: translate(-50%, 0);
-  transition: all 0.3s;
+  transition: all 0.5s;
 }
 .addOrUpdateForm:hover {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
+/* .addOrUpdateForm:active {
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+} */
 .exit {
   /* 注销按钮 */
   position: absolute;
@@ -926,7 +942,7 @@ export default {
   right: 10px;
 }
 .test {
-  /* redis练习 */
+  /* redis练习，django-redis练习 */
   width: 100%;
   height: 60px;
   margin: 10px auto;
@@ -935,10 +951,14 @@ export default {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
   position: absolute;
   top: 670px;
-  transition: all 0.6s;
+  transition: all 0.5s;
 }
 .test:hover {
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.4);
 }
+/* .test:active {
+  border-radius: 4px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+} */
 </style>
